@@ -126,7 +126,7 @@ include "../templates/header.php";
                         </svg>
                     </a>
                     <?php if ($quiz["is_attempted"]): ?>
-                        <a href="view_results.php?quiz_id=<?= $quiz[
+                        <a href="/vendor/compponents/view_results.php?quiz_id=<?= $quiz[
                             "id"
                         ] ?>" class="btn btn-secondary">
                             Результаты

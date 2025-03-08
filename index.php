@@ -3,13 +3,12 @@ require_once "vendor/functions/config/database.php";
 require_once "vendor/functions/includes/functions.php";
 
 include "vendor/templates/header.php";
-?> 
+?>
 
 <div class="container">
     <div class="hero-section">
         <h1>Добро пожаловать в Quizzy</h1>
         <p class="hero-subtitle">Проверьте свои знания с помощью интерактивных тестов</p>
-
         <?php if (!isset($_SESSION["user_id"])): ?>
             <div class="hero-actions">
                 <a href="login.php" class="btn btn-primary">
@@ -61,9 +60,7 @@ include "vendor/templates/header.php";
                         </div>
 
                         <div class="quiz-card-actions">
-                            <a href="take_quiz.php?id=<?= $quiz[
-                                "id"
-                            ] ?>" class="btn btn-primary">
+                            <a href="take_quiz.php?id=<?= $quiz["id"] ?>" class="btn btn-primary">
                                 Начать тест
                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                     <line x1="5" y1="12" x2="19" y2="12"></line>

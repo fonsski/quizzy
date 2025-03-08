@@ -35,8 +35,8 @@ include "../templates/header.php";
             <div class="quiz-info">
                 <h1><?= htmlspecialchars($quiz["title"]) ?></h1>
                 <p class="quiz-description"><?= htmlspecialchars(
-                    $quiz["description"]
-                ) ?></p>
+                                                $quiz["description"]
+                                            ) ?></p>
             </div>
 
             <div class="quiz-timer">
@@ -53,30 +53,28 @@ include "../templates/header.php";
                 <div class="progress-fill" style="width: 0%"></div>
             </div>
             <span class="progress-text">Вопрос <span id="currentQuestion">1</span> из <?= count(
-                $questions
-            ) ?></span>
+                                                                                            $questions
+                                                                                        ) ?></span>
         </div>
 
         <form id="quizForm" data-quiz-id="<?= $quiz_id ?>" class="quiz-form">
             <div class="questions-container">
                 <?php foreach ($questions as $index => $question): ?>
                     <div class="question-card" data-question="<?= $index +
-                        1 ?>" style="display: <?= $index === 0
-    ? "block"
-    : "none" ?>">
+                                                                    1 ?>" style="display: <?= $index === 0
+                                                                                                ? "block"
+                                                                                                : "none" ?>">
                         <div class="question-header">
                             <span class="question-number">Вопрос <?= $index +
-                                1 ?></span>
-                            <span class="question-type"><?= $question[
-                                "type"
-                            ] === "multiple"
-                                ? "Несколько ответов"
-                                : "Один ответ" ?></span>
+                                                                        1 ?></span>
+                            <span class="question-type"><?= $question["type"] === "multiple"
+                                                            ? "Несколько ответов"
+                                                            : "Один ответ" ?></span>
                         </div>
 
                         <h3 class="question-text"><?= htmlspecialchars(
-                            $question["question_text"]
-                        ) ?></h3>
+                                                        $question["question_text"]
+                                                    ) ?></h3>
 
                         <div class="answers-grid">
                             <?php
@@ -89,20 +87,19 @@ include "../templates/header.php";
                                 <label class="answer-option">
                                     <input
                                         type="<?= $question["type"] ===
-                                        "multiple"
-                                            ? "checkbox"
-                                            : "radio" ?>"
-                                            name="question_<?= $question["id"] .
-                                                ($question["type"] ===
-                                                "multiple"
-                                                    ? "[]"
-                                                    : "") ?>"
+                                                    "multiple"
+                                                    ? "checkbox"
+                                                    : "radio" ?>"
+                                        name="question_<?= $question["id"] .
+                                                            ($question["type"] ===
+                                                                "multiple"
+                                                                ? "[]"
+                                                                : "") ?>"
                                         value="<?= $answer_id ?>"
-                                        class="answer-input"
-                                    >
+                                        class="answer-input">
                                     <span class="answer-text"><?= htmlspecialchars(
-                                        $answer_text
-                                    ) ?></span>
+                                                                    $answer_text
+                                                                ) ?></span>
                                     <span class="answer-check"></span>
                                 </label>
                             <?php
@@ -141,157 +138,156 @@ include "../templates/header.php";
     </div>
 </div>
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const quizForm = document.getElementById('quizForm');
-    const prevButton = document.getElementById('prevQuestion');
-    const nextButton = document.getElementById('nextQuestion');
-    const submitButton = document.getElementById('submitQuiz');
-    const progressFill = document.querySelector('.progress-fill');
-    const currentQuestionSpan = document.getElementById('currentQuestion');
-    const timerElement = document.getElementById('timer');
+    document.addEventListener('DOMContentLoaded', function() {
+        const quizForm = document.getElementById('quizForm');
+        const prevButton = document.getElementById('prevQuestion');
+        const nextButton = document.getElementById('nextQuestion');
+        const submitButton = document.getElementById('submitQuiz');
+        const progressFill = document.querySelector('.progress-fill');
+        const currentQuestionSpan = document.getElementById('currentQuestion');
+        const timerElement = document.getElementById('timer');
 
-    let currentQuestion = 1;
-    const totalQuestions = <?= count($questions) ?>;
-    let timeLeft = <?= $quiz["time_limit"] ?> * 60;
+        let currentQuestion = 1;
+        const totalQuestions = <?= count($questions) ?>;
+        let timeLeft = <?= $quiz["time_limit"] ?> * 60;
 
-    // Функция обновления прогресса
-    function updateProgress() {
-        const progress = (currentQuestion / totalQuestions) * 100;
-        progressFill.style.width = `${progress}%`;
-        currentQuestionSpan.textContent = currentQuestion;
+        // Функция обновления прогресса
+        function updateProgress() {
+            const progress = (currentQuestion / totalQuestions) * 100;
+            progressFill.style.width = `${progress}%`;
+            currentQuestionSpan.textContent = currentQuestion;
 
-        // Управление кнопками
-        prevButton.disabled = currentQuestion === 1;
-        nextButton.style.display = currentQuestion === totalQuestions ? 'none' : 'flex';
-        submitButton.style.display = currentQuestion === totalQuestions ? 'flex' : 'none';
-    }
-
-    // Функция показа вопроса
-    function showQuestion(questionNumber) {
-        document.querySelectorAll('.question-card').forEach(card => {
-            card.style.display = 'none';
-        });
-        document.querySelector(`[data-question="${questionNumber}"]`).style.display = 'block';
-        updateProgress();
-    }
-
-    // Обработчики навигации
-    prevButton.addEventListener('click', () => {
-        if (currentQuestion > 1) {
-            currentQuestion--;
-            showQuestion(currentQuestion);
-        }
-    });
-
-    nextButton.addEventListener('click', () => {
-        if (currentQuestion < totalQuestions) {
-            currentQuestion++;
-            showQuestion(currentQuestion);
-        }
-    });
-    // В take_quiz.php
-    quizForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-
-        if (!confirm('Вы уверены, что хотите завершить тест?')) {
-            return;
+            // Управление кнопками
+            prevButton.disabled = currentQuestion === 1;
+            nextButton.style.display = currentQuestion === totalQuestions ? 'none' : 'flex';
+            submitButton.style.display = currentQuestion === totalQuestions ? 'flex' : 'none';
         }
 
-        clearInterval(timer);
+        // Функция показа вопроса
+        function showQuestion(questionNumber) {
+            document.querySelectorAll('.question-card').forEach(card => {
+                card.style.display = 'none';
+            });
+            document.querySelector(`[data-question="${questionNumber}"]`).style.display = 'block';
+            updateProgress();
+        }
 
-        const formData = new FormData(this);
-        formData.append('quiz_id', this.dataset.quizId);
-
-        fetch('submit_quiz.php', {
-            method: 'POST',
-            body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                window.location.href = `view_results.php?attempt_id=${data.attempt_id}`;
-            } else {
-                throw new Error(data.error || 'Произошла ошибка при сохранении результатов');
+        // Обработчики навигации
+        prevButton.addEventListener('click', () => {
+            if (currentQuestion > 1) {
+                currentQuestion--;
+                showQuestion(currentQuestion);
             }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Произошла ошибка при отправке теста. Пожалуйста, попробуйте снова.');
         });
-    });
-    // Таймер
-    function updateTimer() {
-        const minutes = Math.floor(timeLeft / 60);
-        const seconds = timeLeft % 60;
-        timerElement.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
 
-        if (timeLeft <= 0) {
-            quizForm.submit();
-        } else {
-            timeLeft--;
-        }
-    }
+        nextButton.addEventListener('click', () => {
+            if (currentQuestion < totalQuestions) {
+                currentQuestion++;
+                showQuestion(currentQuestion);
+            }
+        });
+        // В take_quiz.php
+        quizForm.addEventListener('submit', function(e) {
+            e.preventDefault();
 
-    const timer = setInterval(updateTimer, 1000);
+            if (!confirm('Вы уверены, что хотите завершить тест?')) {
+                return;
+            }
 
-    // Анимация ответов
-    document.querySelectorAll('.answer-option').forEach(option => {
-        option.addEventListener('click', function() {
-            const input = this.querySelector('input');
-            if (input.type === 'radio') {
-                this.closest('.answers-grid').querySelectorAll('.answer-option').forEach(opt => {
-                    opt.classList.remove('selected');
+            clearInterval(timer);
+
+            const formData = new FormData(this);
+            formData.append('quiz_id', this.dataset.quizId);
+
+            fetch('/vendor/components/submit_quiz.php', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        window.location.href = `view_results.php?attempt_id=${data.attempt_id}`;
+                    } else {
+                        throw new Error(data.error || 'Произошла ошибка при сохранении результатов');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Произошла ошибка при отправке теста. Пожалуйста, попробуйте снова.');
                 });
-            }
-            this.classList.toggle('selected');
         });
-    });
+        // Таймер
+        function updateTimer() {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            timerElement.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
 
-    // Отправка формы
-    quizForm.addEventListener('submit', function(e) {
-       isQuizSubmitted = true;
-        e.preventDefault();
-
-        if (!confirm('Вы уверены, что хотите завершить тест?')) {
-            return;
+            if (timeLeft <= 0) {
+                quizForm.submit();
+            } else {
+                timeLeft--;
+            }
         }
 
-        clearInterval(timer);
+        const timer = setInterval(updateTimer, 1000);
 
-        const formData = new FormData(this);
-        formData.append('quiz_id', this.dataset.quizId);
-
-        fetch('submit_quiz.php', {
-            method: 'POST',
-            body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                window.location.href = `results.php?quiz_id=${data.quiz_id}&attempt_id=${data.attempt_id}`;
-            } else {
-                alert('Ошибка при отправке теста. Пожалуйста, попробуйте снова.');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Произошла ошибка. Пожалуйста, попробуйте снова.');
+        // Анимация ответов
+        document.querySelectorAll('.answer-option').forEach(option => {
+            option.addEventListener('click', function() {
+                const input = this.querySelector('input');
+                if (input.type === 'radio') {
+                    this.closest('.answers-grid').querySelectorAll('.answer-option').forEach(opt => {
+                        opt.classList.remove('selected');
+                    });
+                }
+                this.classList.toggle('selected');
+            });
         });
+
+        // Отправка формы
+        quizForm.addEventListener('submit', function(e) {
+            isQuizSubmitted = true;
+            e.preventDefault();
+
+            if (!confirm('Вы уверены, что хотите завершить тест?')) {
+                return;
+            }
+
+            clearInterval(timer);
+
+            const formData = new FormData(this);
+            formData.append('quiz_id', this.dataset.quizId);
+
+            fetch('/vendor/components/submit_quiz.php', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        window.location.href = `results.php?quiz_id=${data.quiz_id}&attempt_id=${data.attempt_id}`;
+                    } else {
+                        alert('Ошибка при отправке теста. Пожалуйста, попробуйте снова.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Произошла ошибка. Пожалуйста, попробуйте снова.');
+                });
+        });
+
+        // Инициализация
+        updateProgress();
     });
 
-    // Инициализация
-    updateProgress();
-});
+    // Предупреждение при попытке покинуть страницу
+    let isQuizSubmitted = false;
 
-// Предупреждение при попытке покинуть страницу
-let isQuizSubmitted = false;
-
-window.addEventListener('beforeunload', function(e) {
-    if (!isQuizSubmitted) {
-        e.preventDefault();
-        e.returnValue = '';
-    }
-});
-
+    window.addEventListener('beforeunload', function(e) {
+        if (!isQuizSubmitted) {
+            e.preventDefault();
+            e.returnValue = '';
+        }
+    });
 </script>
 <?php include "../templates/footer.php";; ?>

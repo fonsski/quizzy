@@ -4,7 +4,7 @@ require_once "../functions/includes/functions.php";
 
 checkLogin();
 if (!isAdmin()) {
-    header('Location: ../index.php');
+    header('Location: /vendor/components/index.php');
     exit();
 }
 

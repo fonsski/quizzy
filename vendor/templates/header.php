@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="ru" data-theme="light">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,6 +9,7 @@
     <link rel="stylesheet" href="/assets/css/style.css">
     <script src="/assets/js/theme.js"></script>
 </head>
+
 <body>
     <nav class="navbar">
         <div class="container">
@@ -21,7 +23,7 @@
                             isset($_SESSION["role"]) &&
                             $_SESSION["role"] === "admin"
                         ): ?>
-                            <li><a href="/vendor/admin/" class="admin-link">Админ-панель</a></li>
+                            <li><a href="/vendor/admin/index.php" class="admin-link">Админ-панель</a></li>
                         <?php endif; ?>
                         <li><a href="/vendor/components/logout.php">Выйти</a></li>
                     <?php else: ?>

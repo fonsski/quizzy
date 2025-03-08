@@ -4,7 +4,7 @@ session_start();
 function checkLogin() {
     session_start();
     if (!isset($_SESSION['user_id'])) {
-        header('Location: login.php');
+        header('Location: /vendor/components/login.php');
         exit();
     }
 }
