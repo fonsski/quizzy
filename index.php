@@ -76,4 +76,4 @@ include "vendor/templates/header.php";
     <?php endif; ?>
 </div>
 
-<?php include "templates/footer.php"; ?>
+<?php include "vendor/templates/footer.php"; ?>

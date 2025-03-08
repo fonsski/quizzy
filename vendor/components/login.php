@@ -15,7 +15,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $_SESSION["username"] = $user["username"];
         $_SESSION["role"] = $user["role"];
 
-        header("Location: index.php");
+        header("Location: /index.php");
         exit();
     } else {
         $error = "Неверный email или пароль";
@@ -44,7 +44,7 @@ include "../templates/header.php";
                 </div>
             <?php endif; ?>
 
-            <form method="POST" action="" class="auth-form">
+            <form method="POST" action="/vendor/components/login.php" class="auth-form">
                 <div class="form-group">
                     <label for="email">Email</label>
                     <div class="input-with-icon">
@@ -84,4 +84,4 @@ include "../templates/header.php";
     </div>
 </div>
 
-<?php include "../templates/footer.php"; ?>
+<?php include "/vendor/templates/footer.php"; ?>

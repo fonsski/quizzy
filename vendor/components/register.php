@@ -30,7 +30,7 @@ include "../templates/header.php";
             <div class="alert alert-error"><?= $error ?></div>
         <?php endif; ?>
         
-        <form method="POST" action="">
+        <form method="POST" action="/vendor/components/register.php">
             <div class="form-group">
                 <label for="username">Имя пользователя</label>
                 <input type="text" id="username" name="username" class="form-control" required>
