@@ -39,12 +39,12 @@ git clone git@github.com:fonsski/quizzy.git /your_folder_name
 
 2. Настройте базу данных с помощью файла migrates.php
 ```bash
-cd /vendor/functions/config/migrates.php
+php /vendor/functions/config/migrates.php
 ```
 
 3. Заполните базу данных
 ```bash
-cd /vendor/functions/config/moke_data.php
+php /vendor/functions/config/moke_data.php
 ```
 
 👥 Роли пользователей
