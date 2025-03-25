@@ -10,12 +10,13 @@ if (!isAdmin()) {
 
 $quiz_id = isset($_GET["id"]) ? (int) $_GET["id"] : 0;
 
-// Получаем информацию о тесте
+// Проверка существования теста
 $stmt = $pdo->prepare("SELECT * FROM quizzes WHERE id = ?");
 $stmt->execute([$quiz_id]);
 $quiz = $stmt->fetch();
 
 if (!$quiz) {
+    $_SESSION['error'] = "Тест не найден";
     header("Location: manage_quizzes.php");
     exit();
 }
@@ -33,6 +34,29 @@ $questions = $stmt->fetchAll();
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     try {
+        // Валидация входных данных
+        if (empty($_POST['title']) || empty($_POST['questions'])) {
+            throw new Exception("Заполните все обязательные поля");
+        }
+
+        foreach ($_POST['questions'] as $question) {
+            if (empty($question['text']) || empty($question['answers'])) {
+                throw new Exception("Каждый вопрос должен иметь текст и варианты ответов");
+            }
+            
+            $hasCorrectAnswer = false;
+            foreach ($question['answers'] as $answer) {
+                if (!empty($answer['is_correct'])) {
+                    $hasCorrectAnswer = true;
+                    break;
+                }
+            }
+            
+            if (!$hasCorrectAnswer) {
+                throw new Exception("Каждый вопрос должен иметь хотя бы один правильный ответ");
+            }
+        }
+
         $pdo->beginTransaction();
 
         // Обновляем основную информацию о тесте

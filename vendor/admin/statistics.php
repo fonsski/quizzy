@@ -1,26 +1,23 @@
 <?php
-require_once "../functions/config/database.php";
-require_once "../functions/includes/functions.php";
+session_start();
+require_once __DIR__ . "/../functions/config/database.php";
+require_once __DIR__ . "/../functions/includes/functions.php";
 
 checkLogin();
 if (!isAdmin()) {
-    header("Location: ../index.php");
+    header("Location: /index.php");
     exit();
 }
 
 // Получаем общую статистику
-$stats = $pdo
-    ->query(
-        "
+$stats = $pdo->query("
     SELECT
         (SELECT COUNT(*) FROM users WHERE role = 'user') as total_users,
         (SELECT COUNT(*) FROM quizzes) as total_quizzes,
         (SELECT COUNT(*) FROM user_results) as total_attempts,
-        (SELECT AVG(score) FROM user_results) as average_score,
+        (SELECT COALESCE(AVG(score), 0) FROM user_results) as average_score,
         (SELECT COUNT(DISTINCT user_id) FROM user_results) as active_users
-"
-    )
-    ->fetch();
+")->fetch();
 
 // Статистика по дням за последний месяц
 $daily_stats = $pdo
@@ -102,7 +99,7 @@ include "../templates/header.php";
                 </div>
                 <div class="stat-info">
                     <span class="stat-value"><?= number_format(
-                        $stats["total_users"]
+                        $stats["total_users"] ?? 0
                     ) ?></span>
                     <span class="stat-label">Пользователей</span>
                 </div>
@@ -120,7 +117,7 @@ include "../templates/header.php";
                 </div>
                 <div class="stat-info">
                     <span class="stat-value"><?= number_format(
-                        $stats["total_quizzes"]
+                        $stats["total_quizzes"] ?? 0
                     ) ?></span>
                     <span class="stat-label">Тестов</span>
                 </div>
@@ -134,7 +131,7 @@ include "../templates/header.php";
                 </div>
                 <div class="stat-info">
                     <span class="stat-value"><?= number_format(
-                        $stats["total_attempts"]
+                        $stats["total_attempts"] ?? 0
                     ) ?></span>
                     <span class="stat-label">Попыток</span>
                 </div>
@@ -148,10 +145,7 @@ include "../templates/header.php";
                     </svg>
                 </div>
                 <div class="stat-info">
-                    <span class="stat-value"><?= number_format(
-                        $stats["average_score"],
-                        1
-                    ) ?></span>
+                    <span class="stat-value"><?= number_format($stats["average_score"] ?? 0, 1) ?></span>
                     <span class="stat-label">Средний балл</span>
                 </div>
             </div>
@@ -181,36 +175,34 @@ include "../templates/header.php";
                     <?php foreach ($top_quizzes as $index => $quiz): ?>
                         <div class="ranking-item">
                             <div class="ranking-position"><?= $index +
-                                1 ?></div>
+                                                                1 ?></div>
                             <div class="ranking-content">
                                 <div class="ranking-title"><?= htmlspecialchars(
-                                    $quiz["title"]
-                                ) ?></div>
+                                                                $quiz["title"]
+                                                            ) ?></div>
                                 <div class="ranking-stats">
                                     <span class="stat"><?= number_format(
-                                        $quiz["attempts_count"]
-                                    ) ?> попыток</span>
+                        $quiz["attempts_count"] ?? 0
+                    ) ?> попыток</span>
                                     <span class="stat"><?= number_format(
-                                        $quiz["avg_score"],
-                                        1
-                                    ) ?> ср. балл</span>
+                        $quiz["avg_score"] ?? 0,
+                        1
+                    ) ?> ср. балл</span>
                                 </div>
                             </div>
                             <div class="ranking-score">
                                 <div class="score-range">
                                     <span class="min"><?= number_format(
-                                        $quiz["min_score"]
-                                    ) ?></span>
+                        $quiz["min_score"] ?? 0,
+                        1
+                    ) ?></span>
                                     <span class="max"><?= number_format(
-                                        $quiz["max_score"]
-                                    ) ?></span>
+                        $quiz["max_score"] ?? 0,
+                        1
+                    ) ?></span>
                                 </div>
                                 <div class="score-bar">
-                                    <div class="score-fill" style="width: <?= ($quiz[
-                                        "avg_score"
-                                    ] /
-                                        100) *
-                                        100 ?>%"></div>
+                                    <div class="score-fill" style="width: <?= ($quiz["avg_score"] / 100) * 100 ?>%"></div>
                                 </div>
                             </div>
                         </div>
@@ -225,25 +217,25 @@ include "../templates/header.php";
                     <?php foreach ($user_stats as $index => $user): ?>
                         <div class="ranking-item">
                             <div class="ranking-position"><?= $index +
-                                1 ?></div>
+                                                                1 ?></div>
                             <div class="ranking-content">
                                 <div class="ranking-title"><?= htmlspecialchars(
-                                    $user["username"]
-                                ) ?></div>
+                                                                $user["username"]
+                                                            ) ?></div>
                                 <div class="ranking-stats">
                                     <span class="stat"><?= number_format(
-                                        $user["attempts_count"]
-                                    ) ?> попыток</span>
+                        $user["attempts_count"] ?? 0
+                    ) ?> попыток</span>
                                     <span class="stat"><?= number_format(
-                                        $user["unique_quizzes"]
-                                    ) ?> тестов</span>
+                        $user["unique_quizzes"] ?? 0
+                    ) ?> тестов</span>
                                 </div>
                             </div>
                             <div class="ranking-score">
                                 <div class="score-value"><?= number_format(
-                                    $user["avg_score"],
-                                    1
-                                ) ?></div>
+                                                                $user["avg_score"] ?? 0,
+                                                                1
+                                                            ) ?></div>
                                 <div class="score-label">ср. балл</div>
                             </div>
                         </div>
@@ -256,112 +248,111 @@ include "../templates/header.php";
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Данные для графиков
-    const dailyStats = <?= json_encode($daily_stats) ?>;
+    document.addEventListener('DOMContentLoaded', function() {
+        // Данные для графиков
+        const dailyStats = <?= json_encode($daily_stats) ?>;
 
-    // График активности
-    const activityChart = new Chart(document.getElementById('activityChart'), {
-        type: 'line',
-        data: {
-            labels: dailyStats.map(stat => stat.date),
-            datasets: [{
-                label: 'Количество попыток',
-                data: dailyStats.map(stat => stat.attempts),
-                borderColor: 'rgba(33, 150, 243, 1)',
-                backgroundColor: 'rgba(33, 150, 243, 0.1)',
-                borderWidth: 2,
-                fill: true
-            }, {
-                label: 'Средний балл',
-                data: dailyStats.map(stat => stat.avg_score),
-                borderColor: 'rgba(76, 175, 80, 1)',
-                backgroundColor: 'rgba(76, 175, 80, 0.1)',
-                borderWidth: 2,
-                fill: true,
-                yAxisID: 'y1'
-            }]
-        },
-        options: {
-            responsive: true,
-            interaction: {
-                mode: 'index',
-                intersect: false,
+        // График активности
+        const activityChart = new Chart(document.getElementById('activityChart'), {
+            type: 'line',
+            data: {
+                labels: dailyStats.map(stat => stat.date),
+                datasets: [{
+                    label: 'Количество попыток',
+                    data: dailyStats.map(stat => stat.attempts),
+                    borderColor: 'rgba(33, 150, 243, 1)',
+                    backgroundColor: 'rgba(33, 150, 243, 0.1)',
+                    borderWidth: 2,
+                    fill: true
+                }, {
+                    label: 'Средний балл',
+                    data: dailyStats.map(stat => stat.avg_score),
+                    borderColor: 'rgba(76, 175, 80, 1)',
+                    backgroundColor: 'rgba(76, 175, 80, 0.1)',
+                    borderWidth: 2,
+                    fill: true,
+                    yAxisID: 'y1'
+                }]
             },
-            plugins: {
-                legend: {
-                    position: 'bottom'
-                }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    title: {
-                        display: true,
-                        text: 'Количество попыток'
+            options: {
+                responsive: true,
+                interaction: {
+                    mode: 'index',
+                    intersect: false,
+                },
+                plugins: {
+                    legend: {
+                        position: 'bottom'
                     }
                 },
-                y1: {
-                    beginAtZero: true,
-                    position: 'right',
-                    title: {
-                        display: true,
-                        text: 'Средний балл'
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Количество попыток'
+                        }
                     },
-                    grid: {
-                        drawOnChartArea: false
+                    y1: {
+                        beginAtZero: true,
+                        position: 'right',
+                        title: {
+                            display: true,
+                            text: 'Средний балл'
+                        },
+                        grid: {
+                            drawOnChartArea: false
+                        }
                     }
                 }
             }
-        }
-    });
+        });
 
-    // График распределения баллов
-    const scoresData = Array(10).fill(0);
-    dailyStats.forEach(stat => {
-        const scoreIndex = Math.floor(stat.avg_score / 10);
-        if (scoreIndex >= 0 && scoreIndex < 10) {
-            scoresData[scoreIndex]++;
-        }
-    });
+        // График распределения баллов
+        const scoresData = Array(10).fill(0);
+        dailyStats.forEach(stat => {
+            const scoreIndex = Math.floor(stat.avg_score / 10);
+            if (scoreIndex >= 0 && scoreIndex < 10) {
+                scoresData[scoreIndex]++;
+            }
+        });
 
-    new Chart(document.getElementById('scoresChart'), {
-        type: 'bar',
-        data: {
-            labels: ['0-10', '11-20', '21-30', '31-40', '41-50', '51-60', '61-70', '71-80', '81-90', '91-100'],
-            datasets: [{
-                label: 'Количество результатов',
-                data: scoresData,
-                backgroundColor: 'rgba(33, 150, 243, 0.5)',
-                borderColor: 'rgba(33, 150, 243, 1)',
-                borderWidth: 1
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: {
-                    position: 'bottom'
-                }
+        new Chart(document.getElementById('scoresChart'), {
+            type: 'bar',
+            data: {
+                labels: ['0-10', '11-20', '21-30', '31-40', '41-50', '51-60', '61-70', '71-80', '81-90', '91-100'],
+                datasets: [{
+                    label: 'Количество результатов',
+                    data: scoresData,
+                    backgroundColor: 'rgba(33, 150, 243, 0.5)',
+                    borderColor: 'rgba(33, 150, 243, 1)',
+                    borderWidth: 1
+                }]
             },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    title: {
-                        display: true,
-                        text: 'Количество результатов'
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
                     }
                 },
-                x: {
-                    title: {
-                        display: true,
-                        text: 'Диапазон баллов'
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Количество результатов'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Диапазон баллов'
+                        }
                     }
                 }
             }
-        }
+        });
     });
-});
-
 </script>
-<?php include "../templates/footer.php"; ?>
+<?php include __DIR__ . "/../templates/footer.php"; ?>

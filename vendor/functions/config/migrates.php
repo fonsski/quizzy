@@ -5,15 +5,47 @@ $password = '';
 $dbname = 'quiz_system';
 
 try {
+    // Создаем соединение без указания базы данных
     $pdo = new PDO("mysql:host=$host;charset=utf8mb4", $user, $password);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
+    // Создаем базу данных если её нет
     $pdo->exec("CREATE DATABASE IF NOT EXISTS `$dbname` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
     echo "База данных `$dbname` создана или уже существует.<br>";
 
-
+    // Выбираем созданную базу данных
     $pdo->exec("USE `$dbname`");
 
+    // Функция для очистки всех таблиц
+    function clearAllTables($pdo) {
+        $pdo->exec("SET FOREIGN_KEY_CHECKS = 0");
+        
+        $tables = [
+            'user_answers',
+            'user_results',
+            'answers',
+            'questions',
+            'quizzes',
+            'users'
+        ];
+        
+        foreach ($tables as $table) {
+            $pdo->exec("TRUNCATE TABLE `$table`");
+        }
+        
+        $pdo->exec("SET FOREIGN_KEY_CHECKS = 1");
+        echo "Все таблицы очищены.<br>";
+    }
+
+    // Удаляем существующие таблицы
+    $pdo->exec("SET FOREIGN_KEY_CHECKS = 0");
+    $pdo->exec("DROP TABLE IF EXISTS `user_answers`");
+    $pdo->exec("DROP TABLE IF EXISTS `user_results`");
+    $pdo->exec("DROP TABLE IF EXISTS `answers`");
+    $pdo->exec("DROP TABLE IF EXISTS `questions`");
+    $pdo->exec("DROP TABLE IF EXISTS `quizzes`");
+    $pdo->exec("DROP TABLE IF EXISTS `users`");
+    $pdo->exec("SET FOREIGN_KEY_CHECKS = 1");
 
     $pdo->exec("
         CREATE TABLE IF NOT EXISTS `users` (
@@ -112,6 +144,7 @@ try {
     echo "Таблица <code>user_answers</code> создана.<br>";
 
     echo "<br>Миграция выполнена успешно.";
+    
 } catch (PDOException $e) {
     echo "Ошибка миграции: " . $e->getMessage();
 }

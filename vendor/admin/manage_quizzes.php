@@ -1,10 +1,11 @@
 <?php
-require_once "../functions/config/database.php";
-require_once "../functions/includes/functions.php";
+session_start();
+require_once __DIR__ . "/../functions/config/database.php";
+require_once __DIR__ . "/../functions/includes/functions.php";
 
 checkLogin();
 if (!isAdmin()) {
-    header("Location: ../index.php");
+    header("Location: /index.php");
     exit();
 }
 
@@ -13,16 +14,30 @@ if (isset($_POST["delete_quiz"])) {
     $quiz_id = (int) $_POST["quiz_id"];
     try {
         $pdo->beginTransaction();
-        $pdo->prepare("DELETE FROM user_results WHERE quiz_id = ?")->execute([
-            $quiz_id,
-        ]);
-        $pdo->prepare(
-            "DELETE FROM answers WHERE question_id IN (SELECT id FROM questions WHERE quiz_id = ?)"
-        )->execute([$quiz_id]);
-        $pdo->prepare("DELETE FROM questions WHERE quiz_id = ?")->execute([
-            $quiz_id,
-        ]);
+        
+        // Сначала удаляем user_answers
+        $pdo->prepare("
+            DELETE ua FROM user_answers ua
+            JOIN questions q ON ua.question_id = q.id
+            WHERE q.quiz_id = ?
+        ")->execute([$quiz_id]);
+        
+        // Затем удаляем результаты
+        $pdo->prepare("DELETE FROM user_results WHERE quiz_id = ?")->execute([$quiz_id]);
+        
+        // Удаляем ответы
+        $pdo->prepare("
+            DELETE a FROM answers a
+            JOIN questions q ON a.question_id = q.id
+            WHERE q.quiz_id = ?
+        ")->execute([$quiz_id]);
+        
+        // Удаляем вопросы
+        $pdo->prepare("DELETE FROM questions WHERE quiz_id = ?")->execute([$quiz_id]);
+        
+        // И наконец сам тест
         $pdo->prepare("DELETE FROM quizzes WHERE id = ?")->execute([$quiz_id]);
+        
         $pdo->commit();
         $success = "Тест успешно удален";
     } catch (Exception $e) {
@@ -93,7 +108,7 @@ include "../templates/header.php";
         <div class="filters-bar">
             <div class="search-box">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="11" cy="11" r="8"></circle>
+                    <circle cx="11" cx="11" r="8"></circle>
                     <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                 </svg>
                 <input type="text" id="searchQuiz" placeholder="Поиск тестов..." class="search-input">
@@ -316,4 +331,4 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 </script>
-<?php include "../templates/footer.php"; ?>
+<?php include __DIR__ . "/../templates/footer.php"; ?>

@@ -1,9 +1,47 @@
 <?php
 require_once "../functions/config/database.php";
 require_once "../functions/includes/functions.php";
+
+// Проверяем сессию
 checkLogin();
+if (!isset($_SESSION["user_id"])) {
+    header("Location: ../components/login.php");
+    exit();
+}
+
+// Проверяем существование пользователя
+$stmt = $pdo->prepare("SELECT id FROM users WHERE id = ?");
+$stmt->execute([$_SESSION["user_id"]]);
+if (!$stmt->fetch()) {
+    session_destroy();
+    header("Location: ../components/login.php");
+    exit();
+}
 
 $quiz_id = isset($_GET["id"]) ? (int) $_GET["id"] : 0;
+
+// Проверяем, не проходил ли пользователь этот тест недавно
+$stmt = $pdo->prepare("
+    SELECT completed_at 
+    FROM user_results 
+    WHERE user_id = ? AND quiz_id = ? 
+    ORDER BY completed_at DESC 
+    LIMIT 1
+");
+$stmt->execute([$_SESSION["user_id"], $quiz_id]);
+$last_attempt = $stmt->fetch();
+
+if ($last_attempt) {
+    $cooldown_minutes = 5; // Минимальный интервал между попытками
+    $last_attempt_time = strtotime($last_attempt["completed_at"]);
+    $cooldown_ends = $last_attempt_time + ($cooldown_minutes * 60);
+    
+    if (time() < $cooldown_ends) {
+        $_SESSION["error"] = "Подождите " . ceil(($cooldown_ends - time()) / 60) . " минут перед следующей попыткой";
+        header("Location: /index.php");
+        exit();
+    }
+}
 
 // Получаем информацию о викторине
 $stmt = $pdo->prepare("SELECT * FROM quizzes WHERE id = ?");
@@ -189,32 +227,40 @@ include "../templates/header.php";
         // В take_quiz.php
         quizForm.addEventListener('submit', function(e) {
             e.preventDefault();
+            isQuizSubmitted = true;
 
             if (!confirm('Вы уверены, что хотите завершить тест?')) {
+                isQuizSubmitted = false;
                 return;
             }
 
             clearInterval(timer);
-
+            
             const formData = new FormData(this);
             formData.append('quiz_id', this.dataset.quizId);
 
             fetch('/vendor/components/submit_quiz.php', {
-                    method: 'POST',
-                    body: formData
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        window.location.href = `view_results.php?attempt_id=${data.attempt_id}`;
-                    } else {
-                        throw new Error(data.error || 'Произошла ошибка при сохранении результатов');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('Произошла ошибка при отправке теста. Пожалуйста, попробуйте снова.');
-                });
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    window.location.href = `view_results.php?attempt_id=${data.attempt_id}`;
+                } else {
+                    throw new Error(data.error || 'Произошла ошибка при сохранении результатов');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                isQuizSubmitted = false;
+                alert(error.message || 'Произошла ошибка при отправке теста. Пожалуйста, попробуйте снова.');
+            });
         });
         // Таймер
         function updateTimer() {

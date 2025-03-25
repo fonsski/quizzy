@@ -34,17 +34,15 @@ include "../templates/header.php";
         </thead>
         <tbody>
             <?php foreach ($results as $result): ?>
-            <tr>
-                <td><?= htmlspecialchars($result["quiz_title"]) ?></td>
-                <td><?= htmlspecialchars($result["score"]) ?></td>
-                <td><?= date(
-                    "F j, Y, g:i a",
-                    strtotime($result["completed_at"])
-                ) ?></td>
-                <td><a href="view_results.php?attempt_id=<?= $result[
-                    "attempt_id"
-                ] ?>" class="btn">Детали</a></td>
-            </tr>
+                <tr>
+                    <td><?= htmlspecialchars($result["quiz_title"]) ?></td>
+                    <td><?= htmlspecialchars($result["score"]) ?></td>
+                    <td><?= date(
+                            "F j, Y, g:i a",
+                            strtotime($result["completed_at"])
+                        ) ?></td>
+                    <td><a href="view_results.php?attempt_id=<?= $result["attempt_id"] ?>" class="btn">Детали</a></td>
+                </tr>
             <?php endforeach; ?>
         </tbody>
     </table>

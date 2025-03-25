@@ -28,6 +28,13 @@ if (!$attempt) {
     exit();
 }
 
+// Проверяем права на просмотр результатов
+if (!isAdmin() && $attempt["user_id"] !== $_SESSION["user_id"]) {
+    $_SESSION["error"] = "У вас нет прав для просмотра этих результатов";
+    header("Location: /index.php");
+    exit();
+}
+
 // Получаем вопросы и ответы пользователя
 $stmt = $pdo->prepare("
     SELECT

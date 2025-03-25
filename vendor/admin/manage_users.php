@@ -1,10 +1,11 @@
 <?php
-require_once "../functions/config/database.php";
-require_once "../functions/includes/functions.php";
+session_start();
+require_once __DIR__ . "/../functions/config/database.php";
+require_once __DIR__ . "/../functions/includes/functions.php";
 
 checkLogin();
 if (!isAdmin()) {
-    header("Location: ../index.php");
+    header("Location: /index.php");
     exit();
 }
 
@@ -73,7 +74,7 @@ $users = $pdo
     )
     ->fetchAll();
 
-include "../templates/header.php";
+include __DIR__ . "/../templates/header.php";
 ?>
 
 <div class="container">
@@ -323,4 +324,4 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 </script>
-<?php include "../templates/footer.php"; ?>
+<?php include __DIR__ . "/../templates/footer.php"; ?>

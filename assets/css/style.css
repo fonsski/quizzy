@@ -1642,7 +1642,7 @@ th {
 }
 
 .quiz-card {
-    width: 390px;
+    width: 340px;
     background: var(--card);
     border-radius: 16px;
     overflow: hidden;
@@ -1767,7 +1767,7 @@ th {
 .quiz-card-actions {
     padding: 16px;
     background: var(--background);
-    display: flex;
+    display: grid;
     gap: 12px;
     border-top: 1px solid var(--border);
 }

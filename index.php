@@ -1,4 +1,5 @@
 <?php
+session_start();
 require_once "vendor/functions/config/database.php";
 require_once "vendor/functions/includes/functions.php";
 
@@ -60,7 +61,7 @@ include "vendor/templates/header.php";
                         </div>
 
                         <div class="quiz-card-actions">
-                            <a href="take_quiz.php?id=<?= $quiz["id"] ?>" class="btn btn-primary">
+                            <a href="/vendor/components/take_quiz.php?id=<?= $quiz["id"] ?>" class="btn btn-primary">
                                 Начать тест
                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                     <line x1="5" y1="12" x2="19" y2="12"></line>
