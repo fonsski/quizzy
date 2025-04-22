@@ -4,10 +4,6 @@ require_once "../functions/includes/functions.php";
 
 // Проверяем сессию
 checkLogin();
-if (!isset($_SESSION["user_id"])) {
-    header("Location: ../components/login.php");
-    exit();
-}
 
 // Проверяем существование пользователя
 $stmt = $pdo->prepare("SELECT id FROM users WHERE id = ?");

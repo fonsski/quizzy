@@ -2,7 +2,10 @@
 // Удаляем session_start() отсюда, так как он должен быть только в точке входа
 
 function checkLogin() {
-    // Убираем дублирующий session_start()
+    // Гарантируем, что сессия стартует
+    if (session_status() !== PHP_SESSION_ACTIVE) {
+        session_start();
+    }
     if (!isset($_SESSION['user_id'])) {
         header('Location: /vendor/components/login.php');
         exit();
